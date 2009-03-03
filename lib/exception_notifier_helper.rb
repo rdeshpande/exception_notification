@@ -27,7 +27,7 @@ module ExceptionNotifierHelper
   APP_VIEW_PATH = File.join(File.dirname(__FILE__), '..', 'views', VIEW_FOLDER)
 
   PARAM_FILTER_REPLACEMENT = "[FILTERED]"
-  VIEW_PATH_EXTENSION = '.rhtml'
+  VIEW_PATH_EXTENSION = '.html.erb'
 
   def render_section(section, custom_template_path)
     RAILS_DEFAULT_LOGGER.info("rendering section #{section.inspect}")
