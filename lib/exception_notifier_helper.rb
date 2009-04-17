@@ -22,11 +22,11 @@ require 'pp'
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 module ExceptionNotifierHelper
-  VIEW_FOLDER = 'exception_notifier'
-  DEFAULT_VIEW_PATH = File.join(RAILS_ROOT, 'app', 'views', VIEW_FOLDER)
   APP_VIEW_PATH = File.join(File.dirname(__FILE__), '..', 'views', VIEW_FOLDER)
-
+  DEFAULT_VIEW_PATH = File.join(RAILS_ROOT, 'app', 'views', VIEW_FOLDER)
+  MAX_VALUE_LENGTH = 512 # bytes
   PARAM_FILTER_REPLACEMENT = "[FILTERED]"
+  VIEW_FOLDER = 'exception_notifier'
   VIEW_PATH_EXTENSION = '.html.erb'
 
   def render_section(section, custom_template_path)
@@ -56,24 +56,23 @@ module ExceptionNotifierHelper
   end
 
   def inspect_value(value)
-    len = 512
     result = object_to_yaml(value).gsub(/\n/, "\n  ").strip
-    result = result[0,len] + "... (#{result.length-len} bytes more)" if result.length > len+20
-    result
+    result = result[0,MAX_VALUE_LENGTH] + "... (#{result.length-len} bytes more)" if result.length > len+20
+    return result
   end
 
   def object_to_yaml(object)
-    object.to_yaml.sub(/^---\s*/m, "")
+    return object.to_yaml.sub(/^---\s*/m, "")
   end
 
   def exclude_raw_post_parameters?
-    @controller && @controller.respond_to?(:filter_parameters)
+    return @controller && @controller.respond_to?(:filter_parameters)
   end
-  
+
   def filter_sensitive_post_data_parameters(parameters)
-    exclude_raw_post_parameters? ? @controller.__send__(:filter_parameters, parameters) : parameters
+    return exclude_raw_post_parameters? ? @controller.__send__(:filter_parameters, parameters) : parameters
   end
-  
+
   def filter_sensitive_post_data_from_env(env_key, env_value)
     return env_value unless exclude_raw_post_parameters?
     return PARAM_FILTER_REPLACEMENT if (env_key =~ /RAW_POST_DATA/i)
